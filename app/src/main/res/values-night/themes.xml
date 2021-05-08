@@ -18,6 +18,6 @@
         <item name="title_bar_color">@color/dark_gray</item>
 
         <item name="homeBackground">@color/gray9_dark</item>
-        <item name="homeItem">@color/gray9_light</item>
+        <item name="homeItem">@color/gray9</item>
     </style>
 </resources>

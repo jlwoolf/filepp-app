@@ -80,6 +80,7 @@ class DirectoryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         Log.d(LOG_TAG, "onCreate() called")
 
+
         val factory = DirectoryViewModelFactory()
         directoryViewModel = ViewModelProvider(this@DirectoryFragment, factory)
             .get(DirectoryViewModel::class.java)
@@ -153,10 +154,15 @@ class DirectoryFragment : Fragment() {
         if(hasReadFilePermission()) {
             if (directoryArgs.file == null) {
                 storage = File("/storage/self/primary")
-                binding.directoryTextView.text = "Internal Storage"
+                binding.directoryTextView.text = getString(R.string.internal_storage)
             } else {
                 storage = directoryArgs.file!!
-                binding.directoryTextView.text = storage.name
+                if(storage.path == "/storage/self/primary") {
+                    binding.directoryTextView.text = getString(R.string.internal_storage)
+                } else {
+                    binding.directoryTextView.text = storage.name
+                }
+                Log.d(LOG_TAG, storage.path)
             }
 
             val fileItemList = mutableListOf<FileItem>()
