@@ -1,5 +1,6 @@
 package com.csci448.jlwoolf.filepp.ui
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -48,9 +49,8 @@ class DirectoryFragment : Fragment() {
     ) == PackageManager.PERMISSION_GRANTED
 
     private fun updateUI(files: List<FileItem>) {
-        val files = files.sortedBy { it.file.name }
-
-        adapter = DirectoryAdapter(files) { fileItem: FileItem ->
+        // set up adapter to show files and manage file clicks
+        DirectoryAdapter(files.sortedBy { it.file.name }) { fileItem: FileItem ->
             if(!fileItem.file.isDirectory) {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(fileItem.file)
                 findNavController().navigate(action)
@@ -58,17 +58,39 @@ class DirectoryFragment : Fragment() {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
                 findNavController().navigate(action)
             }
+        }.apply {
+            binding.directoryRecycleView.adapter = this
+            adapter = this
         }
 
-        // path parent text
+        // set parent path text
         val parents = storage.parent?.split("/") ?: listOf()
         binding.directoryPathTextView.text =
             if(parents.size <= 3)
                 "/${parents.takeLast(parents.size).joinToString("/")}"
             else
                 ".../${parents.takeLast(3).joinToString("/")}"
+    }
 
-        binding.directoryRecycleView.adapter = adapter
+    private fun load(){
+        if(hasReadFilePermission()) {
+            if (directoryArgs.file == null) {
+                storage = File("/storage/self/primary")
+                binding.directoryTextView.text = getString(R.string.internal_storage)
+            } else {
+                storage = directoryArgs.file!!
+                if(storage.path == "/storage/self/primary") {
+                    binding.directoryTextView.text = getString(R.string.internal_storage)
+                } else {
+                    binding.directoryTextView.text = storage.name
+                }
+                Log.d(LOG_TAG, storage.path)
+            }
+
+            val fileItemList = mutableListOf<FileItem>()
+            storage.listFiles()!!.toList().forEach { fileItemList.add(FileItem(it)) }
+            updateUI(fileItemList)
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -79,7 +101,6 @@ class DirectoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(LOG_TAG, "onCreate() called")
-
 
         val factory = DirectoryViewModelFactory()
         directoryViewModel = ViewModelProvider(this@DirectoryFragment, factory)
@@ -110,7 +131,7 @@ class DirectoryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.d(LOG_TAG, "onCreateView() called")
 
         _binding = FragmentDirectoryBinding.inflate(inflater, container, false)
@@ -151,24 +172,7 @@ class DirectoryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
-        if(hasReadFilePermission()) {
-            if (directoryArgs.file == null) {
-                storage = File("/storage/self/primary")
-                binding.directoryTextView.text = getString(R.string.internal_storage)
-            } else {
-                storage = directoryArgs.file!!
-                if(storage.path == "/storage/self/primary") {
-                    binding.directoryTextView.text = getString(R.string.internal_storage)
-                } else {
-                    binding.directoryTextView.text = storage.name
-                }
-                Log.d(LOG_TAG, storage.path)
-            }
-
-            val fileItemList = mutableListOf<FileItem>()
-            storage.listFiles()!!.toList().forEach { fileItemList.add(FileItem(it)) }
-            updateUI(fileItemList)
-        }
+        load()
     }
 
     override fun onPause() {
@@ -199,20 +203,12 @@ class DirectoryFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-            R.id.new_folder_menu_item -> {
-                Toast.makeText(context, "Creates a new folder", Toast.LENGTH_SHORT).show()
-                NewFolderDialogFragment.newInstance().show(childFragmentManager, NEW_FOLDER)
-                true
-            } R.id.menu_more_item-> {
-                Toast.makeText(context, "Directory settings", Toast.LENGTH_SHORT).show()
-                true
-            } R.id.settings_menu_item-> {
-                Toast.makeText(context, "More options", Toast.LENGTH_SHORT).show()
-                true
-            } else -> {
-                return super.onOptionsItemSelected(item)
-            }
+        when(item.itemId) {
+            R.id.new_folder_menu_item -> NewFolderDialogFragment(storage,this::load).show(childFragmentManager,NEW_FOLDER)
+            R.id.menu_more_item-> Toast.makeText(context,"Directory settings",Toast.LENGTH_SHORT).show()
+            R.id.settings_menu_item-> Toast.makeText(context,"More options",Toast.LENGTH_SHORT).show()
+            else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 }
