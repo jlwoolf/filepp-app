@@ -47,7 +47,7 @@ class DirectoryFragment : Fragment() {
     ) == PackageManager.PERMISSION_GRANTED
 
     private fun updateUI(files: List<FileItem>) {
-        var files = files.sortedBy { it.file.name }
+        val files = files.sortedBy { it.file.name }
 
         adapter = DirectoryAdapter(files) { fileItem: FileItem ->
             if(!fileItem.file.isDirectory) {
