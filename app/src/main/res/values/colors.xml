@@ -12,5 +12,8 @@
     <color name="gray1">#fafafa</color>
     <color name="gray1_light">#ffffff</color>
     <color name="gray1_dark">#c7c7c7</color>
+    <color name="gray9">#424242</color>
+    <color name="gray9_light">#6d6d6d</color>
+    <color name="gray9_dark">#1b1b1b</color>
     <color name="transparent">#00ffffff</color>
 </resources>

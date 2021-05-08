@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/directoryFragment">
+    app:startDestination="@id/homeFragment">
     <fragment
         android:id="@+id/directoryFragment"
         android:name="com.csci448.jlwoolf.filepp.ui.DirectoryFragment"
@@ -33,5 +33,14 @@
         <argument
             android:name="file"
             app:argType="java.io.File" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.csci448.jlwoolf.filepp.ui.HomeFragment"
+        android:label="HomeFragment"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_directoryFragment"
+            app:destination="@id/directoryFragment" />
     </fragment>
 </navigation>
