@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/new_folder_menu_item"
+        android:icon="@drawable/ic_menu_new_folder"
+        android:title="@string/new_folder"
+        app:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/settings_menu_item"
+        android:icon="@drawable/ic_menu_settings"
+        android:title="@string/new_folder"
+        app:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_more_item"
+        android:icon="@drawable/ic_menu_more"
+        android:title="@string/new_folder"
+        app:showAsAction="ifRoom|withText"/>
+
+</menu>
