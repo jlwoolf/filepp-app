@@ -1,7 +1,5 @@
 package com.csci448.jlwoolf.filepp
 
-import android.content.Context
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return findNavController((binding as ActivityMainBinding).navHostFragment.id).navigateUp()
+        return findNavController(binding.navHostFragment.id).navigateUp()
                 || super.onSupportNavigateUp()
     }
 }
