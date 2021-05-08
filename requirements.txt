@@ -1,0 +1,55 @@
+Select Menu #2
+- Move
+- Copy
+- Delete
+- Rename
+
+Multiselect Menu #2
+- Move #4
+- Copy #4
+- Delete #3
+
+Regular Menu #1
+- Pin directory to notifications #1
+- Modify directory settings 
+- Open preferences fragment #1
+- Create a new folder
+
+Preferences Fragment #1
+- enable/disable shake to randomize #1
+- enable/disable ./.. directories #2
+- default colors #2
+- reset customization settings #2
+
+Room database #1
+- Primary Key: Path
+- Primary Color
+- Secondary Color
+- Text Color
+- Image Resource
+
+Settings Dialog #1
+- when pressing gear inside directory or file
+- Rename the directory
+- Change the icon
+- Change the background color
+- Change the secondary color
+- Update the fragment and push all to the room
+
+|-----------|
+|_____n_____|
+|           |
+|    [i]    |
+| [c]   [c] |
+| cancel  ok|
+|-----------|
+
+Changing the icon (dialog?) #1
+- Take a picture #1
+- Select from photos
+- Select from a group of presets
+- Reset
+
+Selecting a color (dialog?) #2
+- Color Wheel?
+

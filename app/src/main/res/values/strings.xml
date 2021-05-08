@@ -8,4 +8,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="internal_storage">Internal Storage</string>
+    <string name="pin_to_notifications">Pin to Notifications</string>
+    <string name="preferences">Preferences</string>
 </resources>
