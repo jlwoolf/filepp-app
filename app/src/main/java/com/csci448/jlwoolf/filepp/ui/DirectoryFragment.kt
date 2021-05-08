@@ -21,7 +21,6 @@ import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
 
-
 class DirectoryFragment : Fragment() {
     private var _binding: FragmentDirectoryBinding? = null
     private val binding get() = _binding!!
