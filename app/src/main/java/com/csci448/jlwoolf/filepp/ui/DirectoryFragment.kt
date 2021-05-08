@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
+import java.util.stream.IntStream
 
 class DirectoryFragment : Fragment() {
     private var _binding: FragmentDirectoryBinding? = null
@@ -58,6 +59,15 @@ class DirectoryFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
+
+        // path parent text
+        val parents = storage.parent?.split("/") ?: listOf()
+        binding.directoryPathTextView.text =
+            if(parents.size <= 3)
+                "/${parents.takeLast(parents.size).joinToString("/")}"
+            else
+                ".../${parents.takeLast(3).joinToString("/")}"
+
         binding.directoryRecycleView.adapter = adapter
     }
 
