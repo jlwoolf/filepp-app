@@ -16,5 +16,8 @@
         <item name="ic_folder">@drawable/ic_folder_light</item>
         <item name="ic_image">@drawable/ic_image_light</item>
         <item name="title_bar_color">@color/white</item>
+
+        <item name="homeBackground">@color/gray1_dark</item>
+        <item name="homeItem">@color/gray1_light</item>
     </style>
 </resources>

@@ -3,4 +3,6 @@
     <attr name="ic_folder" format="reference"/>
     <attr name="ic_image" format="reference"/>
     <attr name="title_bar_color" format="reference"/>
+    <attr name="homeBackground" format="reference"/>
+    <attr name="homeItem" format="reference"/>
 </resources>
