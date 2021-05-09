@@ -1,8 +1,9 @@
 package com.csci448.jlwoolf.filepp.ui
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.drawable.ColorDrawable
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -16,13 +17,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import java.io.File
-import java.util.stream.IntStream
 
 class DirectoryFragment : Fragment() {
     private var _binding: FragmentDirectoryBinding? = null
@@ -43,6 +42,7 @@ class DirectoryFragment : Fragment() {
         private const val LOG_TAG = "448.DirectoryFragment"
         private const val REQUIRED_READ_FILE_PERMISSION = android.Manifest.permission.READ_EXTERNAL_STORAGE
         private const val NEW_FOLDER = "NewFolder"
+        private const val DIRECTORY_SETTINGS = "DirectorySettings"
     }
 
     private fun hasReadFilePermission() = ContextCompat.checkSelfPermission(
@@ -92,6 +92,10 @@ class DirectoryFragment : Fragment() {
             storage.listFiles()!!.toList().forEach { fileItemList.add(FileItem(it)) }
             updateUI(fileItemList)
         }
+    }
+
+    private fun applySettings(name: String, background: Int, secondary: Int, icon: Int){
+        Log.d(LOG_TAG,"Applying Directory Settings: name=$name, background=$background, secondary=$secondary, icon=$icon")
     }
 
     override fun onAttach(context: Context) {
@@ -206,11 +210,17 @@ class DirectoryFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.new_folder_menu_item -> NewFolderDialogFragment(storage,this::load).show(childFragmentManager,NEW_FOLDER)
+            R.id.settings_menu_item-> DirectorySettingsDialogFragment(
+                storage.name,
+                0, // todo get background color
+                0, // todo get secondary color
+                0, // todo get icon id
+                this::applySettings
+            ).show(childFragmentManager,DIRECTORY_SETTINGS)
             R.id.menu_preferences-> {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentToSettingsFragment()
                 findNavController().navigate(action)
             }
-            R.id.settings_menu_item-> Toast.makeText(context,"More options",Toast.LENGTH_SHORT).show()
             else -> return super.onOptionsItemSelected(item)
         }
         return true

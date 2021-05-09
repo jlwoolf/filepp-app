@@ -10,4 +10,9 @@
     <string name="internal_storage">Internal Storage</string>
     <string name="pin_to_notifications">Pin to Notifications</string>
     <string name="preferences">Preferences</string>
+    <string name="directory_settings">Directory Settings</string>
+    <string name="directory_name_hint">Directory Name</string>
+    <string name="select">select</string>
+    <string name="background">Background</string>
+    <string name="secondary">Secondary</string>
 </resources>
