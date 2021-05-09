@@ -2,8 +2,7 @@ package com.csci448.jlwoolf.filepp.ui
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.drawable.ColorDrawable
-import android.media.Image
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -20,7 +19,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
-import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import java.io.File
 
 class DirectoryFragment : Fragment() {
@@ -38,11 +36,16 @@ class DirectoryFragment : Fragment() {
     private lateinit var manageFilePermissionCallback: ActivityResultCallback<Boolean>
     private lateinit var managePermissionLauncher: ActivityResultLauncher<String>
 
+    val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        // Handle the returned Uri
+    }
+
     companion object {
         private const val LOG_TAG = "448.DirectoryFragment"
         private const val REQUIRED_READ_FILE_PERMISSION = android.Manifest.permission.READ_EXTERNAL_STORAGE
         private const val NEW_FOLDER = "NewFolder"
         private const val DIRECTORY_SETTINGS = "DirectorySettings"
+        private const val CHANNEL_ID = "fpp_channel"
     }
 
     private fun hasReadFilePermission() = ContextCompat.checkSelfPermission(
@@ -53,7 +56,9 @@ class DirectoryFragment : Fragment() {
         // set up adapter to show files and manage file clicks
         DirectoryAdapter(files.sortedBy { it.file.name }) { fileItem: FileItem ->
             if(!fileItem.file.isDirectory) {
-                val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(fileItem.file)
+                val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(
+                    fileItem.file
+                )
                 findNavController().navigate(action)
             } else {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
@@ -209,17 +214,23 @@ class DirectoryFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            R.id.new_folder_menu_item -> NewFolderDialogFragment(storage,this::load).show(childFragmentManager,NEW_FOLDER)
-            R.id.settings_menu_item-> DirectorySettingsDialogFragment(
-                storage.name,
-                0, // todo get background color
-                0, // todo get secondary color
-                0, // todo get icon id
-                this::applySettings
-            ).show(childFragmentManager,DIRECTORY_SETTINGS)
-            R.id.menu_preferences-> {
+            R.id.new_folder_menu_item -> NewFolderDialogFragment(storage, this::load).show(childFragmentManager,NEW_FOLDER)
+            R.id.menu_preferences -> {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentToSettingsFragment()
                 findNavController().navigate(action)
+            }
+            R.id.settings_menu_item -> {
+                DirectorySettingsDialogFragment(
+                    storage.name,
+                    0, // todo get background color
+                    0, // todo get secondary color
+                    0, // todo get icon id
+                    this::applySettings
+                ).show(childFragmentManager,DIRECTORY_SETTINGS)
+                getContent.launch("image/*")
+            }
+            R.id.menu_pin_notification -> {
+
             }
             else -> return super.onOptionsItemSelected(item)
         }
