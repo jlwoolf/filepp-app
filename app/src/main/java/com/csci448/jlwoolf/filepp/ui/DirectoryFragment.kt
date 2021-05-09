@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
+import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import java.io.File
 import java.util.stream.IntStream
 
@@ -205,7 +206,10 @@ class DirectoryFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.new_folder_menu_item -> NewFolderDialogFragment(storage,this::load).show(childFragmentManager,NEW_FOLDER)
-            R.id.menu_more_item-> Toast.makeText(context,"Directory settings",Toast.LENGTH_SHORT).show()
+            R.id.menu_preferences-> {
+                val action = DirectoryFragmentDirections.actionDirectoryFragmentToSettingsFragment()
+                findNavController().navigate(action)
+            }
             R.id.settings_menu_item-> Toast.makeText(context,"More options",Toast.LENGTH_SHORT).show()
             else -> return super.onOptionsItemSelected(item)
         }

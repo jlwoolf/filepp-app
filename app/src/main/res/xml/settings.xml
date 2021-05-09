@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory>
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="randomize_switch"
+            app:title="Shake to Randomize" />
+        <SwitchPreference
+            app:defaultValue="true"
+            app:key="hidden_files_switch"
+            app:title="Show hidden files" />
+
+    </PreferenceCategory>
+
+
+    <Preference
+        app:key="reset_customization"
+        app:title="Reset Customization"
+        app:icon="@drawable/ic_settings_clear"/>
+
+    <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        app:title="Background Color"
+        app:defaultValue="@color/white"
+        app:key="background_color"
+        app:cpv_colorShape = "square"/>
+
+</PreferenceScreen>
