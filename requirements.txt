@@ -24,9 +24,9 @@ Preferences Fragment #1
 Room database #1
 - Primary Key: Path
 - Primary Color
-- Secondary Color
+- Secondary Color 
 - Text Color
-- Image Resource
+- Image Resource (string)
 
 Settings Dialog #1
 - when pressing gear inside directory or file
