@@ -13,6 +13,9 @@ interface Dao {
     @Query("SELECT * FROM data WHERE path=(:path)")
     fun getData(path: String): LiveData<Data?>
 
+    @Query("SELECT * FROM data WHERE isPinned = 'true'")
+    fun getPinned(): LiveData<Data?>
+
     @Update
     fun updateData(data: Data)
 

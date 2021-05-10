@@ -25,11 +25,6 @@
             app:title="Secondary Color"
             app:defaultValue="@color/white"
             app:key="secondary_color" />
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:title="Text Color"
-            app:defaultValue="@color/white"
-            app:key="text_color" />
-
         <Preference
             app:key="reset_customization"
             app:title="Reset Customization"

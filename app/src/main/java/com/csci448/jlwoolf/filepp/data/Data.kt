@@ -9,7 +9,6 @@ import java.util.*
 class Data(@PrimaryKey val path: String,
            var backgroundColor: Int,
            var secondaryColor: Int,
-           var textColor: Int,
            var imagePath: String,
            var isPinned: Boolean = false) {
 }

@@ -63,6 +63,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     private var backgroundColor: Int = 0
     private var secondaryColor: Int = 0
+    private var textColor: Int = 0
 
     val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the returned Uri
@@ -83,6 +84,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     private fun updateColors() {
         binding.directoryLinearLayout.setBackgroundColor(backgroundColor)
+        binding.directoryTextView.setBackgroundColor(backgroundColor)
         requireActivity().window.statusBarColor = secondaryColor
         requireActivity().window.navigationBarColor = secondaryColor
         (activity as AppCompatActivity?)!!.supportActionBar?.setBackgroundDrawable(ColorDrawable(secondaryColor))
@@ -293,7 +295,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                 ).show(childFragmentManager,DIRECTORY_SETTINGS)
             }
             R.id.menu_pin_notification -> {
-
+                item.isChecked = !item.isChecked
             }
             else -> return super.onOptionsItemSelected(item)
         }
@@ -314,14 +316,14 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     Log.d(LOG_TAG, "shake detected w/ speed: $speed")
                     backgroundColor = MainActivity.randomColor()
                     secondaryColor = MainActivity.randomColor()
+                    textColor = MainActivity.randomColor()
                     updateColors()
 
                     repository.addData(Data(
                         path = storage.path,
                         backgroundColor = backgroundColor,
                         secondaryColor = secondaryColor,
-                        imagePath = ".",
-                        textColor = backgroundColor)
+                        imagePath = ".")
                     )
                 }
                 lastX = x

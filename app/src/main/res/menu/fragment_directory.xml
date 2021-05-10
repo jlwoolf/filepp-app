@@ -14,11 +14,12 @@
         android:icon="@drawable/ic_menu_settings"
         android:title="@string/new_folder"
         app:showAsAction="ifRoom|withText"/>
+    <group android:checkableBehavior="all">
     <item
         android:id="@+id/menu_pin_notification"
-        android:checkable="true"
         android:title="@string/pin_to_notifications"
         app:showAsAction="withText"/>
+    </group>
     <item
         android:id="@+id/menu_preferences"
         android:icon="@drawable/ic_menu_more"
