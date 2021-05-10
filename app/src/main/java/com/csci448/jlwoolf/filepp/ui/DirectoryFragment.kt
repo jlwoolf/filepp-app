@@ -365,8 +365,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
             val builder = NotificationCompat.Builder(requireActivity(), MainActivity.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_menu_delete)
-                .setContentTitle("Test Title")
-                .setContentText("Test Content")
+                .setContentTitle("Pinned Directory")
+                .setContentText("$path")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
