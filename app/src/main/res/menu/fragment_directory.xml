@@ -5,15 +5,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/delete_menu_item"
+        android:icon="@drawable/ic_menu_delete"
+        android:title="@string/delete"
+        android:visible="false"
+        app:showAsAction="always|withText" />
+    <item
         android:id="@+id/new_folder_menu_item"
         android:icon="@drawable/ic_menu_new_folder"
         android:title="@string/new_folder"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="always|withText"/>
     <item
         android:id="@+id/settings_menu_item"
         android:icon="@drawable/ic_menu_settings"
         android:title="@string/new_folder"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="always|withText"/>
     <item
         android:id="@+id/menu_pin_notification"
         android:title="@string/pin_to_notifications"
