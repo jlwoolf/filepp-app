@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager
 import com.csci448.jlwoolf.filepp.databinding.ActivityMainBinding
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import kotlin.math.abs
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEventListener {
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
                     Log.d("sensor", "shake detected w/ speed: $speed")
                     Toast.makeText(this, "shake detected w/ speed: $speed", Toast.LENGTH_SHORT)
                         .show()
+                    randomizeColors()
                 }
                 lastX = x
                 lastY = y
@@ -108,4 +110,17 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {    }
+
+    fun randomizeColors() {
+        val settingsToRandomize = arrayOf( "a", "b", "c" )
+        val rand = Random(System.currentTimeMillis())
+        val randInts = List(settingsToRandomize.size*3) { rand.nextInt(0, 255) }
+        for ((i, s) in settingsToRandomize.withIndex()) {
+            val red = randInts[i*3+0].toString(16)
+            val green = randInts[i*3+1].toString(16)
+            val blue = randInts[i*3+2].toString(16)
+
+            val hexColor = red + green + blue
+        }
+    }
 }
