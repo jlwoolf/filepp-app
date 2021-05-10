@@ -1,7 +1,5 @@
 package com.csci448.jlwoolf.filepp.ui
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -11,10 +9,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
@@ -38,7 +36,9 @@ import com.csci448.jlwoolf.filepp.data.Data
 import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
+import java.util.*
 import kotlin.math.abs
+
 
 class DirectoryFragment : Fragment(), SensorEventListener {
     private var _binding: FragmentDirectoryBinding? = null
@@ -50,7 +50,6 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var adapter: DirectoryAdapter
-
 
     private lateinit var readFilePermissionCallback: ActivityResultCallback<Boolean>
     private lateinit var readFilePermissionLauncher: ActivityResultLauncher<String>
@@ -88,6 +87,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     ) == PackageManager.PERMISSION_GRANTED
 
     private fun updateColors() {
+
         binding.directoryLinearLayout.setBackgroundColor(backgroundColor)
         binding.directoryTextView.setBackgroundColor(backgroundColor)
         requireActivity().window.statusBarColor = secondaryColor
@@ -143,8 +143,42 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         }
     }
 
-    private fun applySettings(name: String, background: Int, secondary: Int, icon: Int){
-        Log.d(LOG_TAG,"Applying Directory Settings: name=$name, background=$background, secondary=$secondary, icon=$icon")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val gesture = GestureDetector(
+            activity,
+            object : SimpleOnGestureListener() {
+                override fun onDown(e: MotionEvent): Boolean {
+                    return true
+                }
+
+                override fun onDoubleTap(e: MotionEvent?): Boolean {
+                    Log.d(LOG_TAG, "DoubleTap!")
+                    sharedPreferences.edit().putInt("background_color", backgroundColor).apply()
+                    sharedPreferences.edit().putInt("secondary_color", secondaryColor).apply()
+
+                    return super.onDoubleTap(e)
+                }
+            })
+
+        view.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                return gesture.onTouchEvent(event)
+            }
+        })
+    }
+
+    private fun applySettings(name: String, background: Int, secondary: Int, icon: Int) {
+        backgroundColor = background
+        secondaryColor = secondary
+        updateColors()
+
+        repository.addData(Data(
+            path = storage.path,
+            backgroundColor = backgroundColor,
+            secondaryColor = secondaryColor,
+            imagePath = ".")
+        )
     }
 
     override fun onAttach(context: Context) {
@@ -204,11 +238,6 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         binding.directoryRecycleView.layoutManager = LinearLayoutManager(context)
 
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Log.d(LOG_TAG, "onViewCreated() called")
     }
 
     override fun onStart() {
@@ -297,8 +326,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
             R.id.settings_menu_item -> {
                 DirectorySettingsDialogFragment(
                     storage.name,
-                    0, // todo get background color
-                    0, // todo get secondary color
+                    backgroundColor,
+                    secondaryColor,
                     0, // todo get icon id
                     this::applySettings
                 ).show(childFragmentManager,DIRECTORY_SETTINGS)

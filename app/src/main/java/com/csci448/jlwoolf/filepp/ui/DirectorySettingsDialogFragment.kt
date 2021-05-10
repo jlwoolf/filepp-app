@@ -1,16 +1,32 @@
 package com.csci448.jlwoolf.filepp.ui
 
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.ActivityNotFoundException
+import android.content.ComponentName
+import android.content.ContentValues
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.icu.text.SimpleDateFormat
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.widget.Button
 import androidx.annotation.StringRes
+import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectorySettingsDialogBinding
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
+import java.io.File
+import java.io.IOException
+import java.util.*
+
 
 class DirectorySettingsDialogFragment(
     private var name: String,
@@ -24,15 +40,19 @@ class DirectorySettingsDialogFragment(
         private const val COLOR_PICKER_TAG = "DirectorySettingsDialogFragmentColorPicker"
     }
 
-    private fun showColorPicker(@StringRes title: Int, consumer: (color: Int) -> Unit){
+    private fun showColorPicker(@StringRes title: Int, color: Int, button: Button, consumer: (color: Int) -> Unit){
         ColorPickerDialog.newBuilder()
-            .setDialogTitle(title)
+            .setDialogTitle(title).setColor(color)
             .create().apply {
                 setColorPickerDialogListener(object : ColorPickerDialogListener{
-                    override fun onColorSelected(id: Int, color: Int) { consumer(color) }
+                    override fun onColorSelected(id: Int, color: Int) {
+                        consumer(color)
+                        button.setBackgroundColor(color)
+                    }
                     override fun onDialogDismissed(id: Int) = Unit
                 })
-            }.show(parentFragmentManager,COLOR_PICKER_TAG)
+            }
+            .show(parentFragmentManager,COLOR_PICKER_TAG)
     }
 
     override fun onCreateDialog(state: Bundle?): Dialog {
@@ -41,12 +61,10 @@ class DirectorySettingsDialogFragment(
                 addTextChangedListener{ watcher -> name = watcher.toString() }
                 setText(name)
             }
-            directoryBackgroundColorEditor.setOnClickListener { showColorPicker(R.string.background){ color -> background = color} }
-            directorySecondaryColorEditor.setOnClickListener { showColorPicker(R.string.secondary){ color -> secondary = color} }
-            directoryIconEditor.apply {
-                setOnClickListener {  } // todo
-                setImageResource(icon)
-            }
+            directoryBackgroundColorEditor.setOnClickListener { showColorPicker(R.string.background, background, directoryBackgroundColorEditor){ color -> background = color} }
+            directoryBackgroundColorEditor.setBackgroundColor(background)
+            directorySecondaryColorEditor.setOnClickListener { showColorPicker(R.string.secondary, secondary, directorySecondaryColorEditor) { color -> secondary = color} }
+            directorySecondaryColorEditor.setBackgroundColor(secondary)
         }
         return activity?.let { activity ->
             // create a dialog to handle directory settings
@@ -58,4 +76,7 @@ class DirectorySettingsDialogFragment(
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
+
+
+
 }

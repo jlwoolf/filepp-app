@@ -11,9 +11,12 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.GestureDetectorCompat
 import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
@@ -144,5 +147,10 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
                 notify(0, builder.build())
             }
         }
+    }
+
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event)
     }
 }
