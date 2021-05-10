@@ -34,8 +34,6 @@ class DirectoryAdapter(private val files: List<FileItem>,
             selected.remove(item)
         }
 
-        //Log.d(LOG_TAG, "selected count = ${selected.size}")
-
         if(selected.isEmpty()) {
             multiselect = false
         }

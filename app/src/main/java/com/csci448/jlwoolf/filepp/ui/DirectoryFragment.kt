@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
@@ -37,6 +38,7 @@ import com.csci448.jlwoolf.filepp.data.Data
 import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
+import java.nio.file.Files
 import java.util.*
 import kotlin.math.abs
 
@@ -200,19 +202,12 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         }
 
         if(name != storage.name) {
-            //val path = storage.parent + "/" + name
-            //storage.renameTo(File(path))
-
-            //val args: Bundle = Bundle()
-            //args.putSerializable("file", storage)
-
-            /*findNavController().navigate(
-                R.id.action_directoryFragment_self,
-                args,
-                NavOptions.Builder()
-                    .setPopUpTo(R.id.action_directoryFragment_self, true)
-                    .build()
-            )*/
+            val file = File(storage.parent,name)
+            storage.renameTo(file)
+            findNavController().apply {
+                popBackStack()
+                navigate(DirectoryFragmentDirections.actionDirectoryFragmentSelf(file))
+            }
         }
     }
 
