@@ -1,11 +1,8 @@
 package com.csci448.jlwoolf.filepp.data
 
 import androidx.lifecycle.LiveData
+import androidx.room.*
 import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
 import java.util.*
 
 @Dao
@@ -19,7 +16,7 @@ interface Dao {
     @Update
     fun updateData(data: Data)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addData(data: Data)
 
     @Delete

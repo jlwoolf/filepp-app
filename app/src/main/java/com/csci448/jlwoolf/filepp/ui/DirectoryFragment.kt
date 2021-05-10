@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -27,6 +28,8 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.MainActivity
 import com.csci448.jlwoolf.filepp.R
+import com.csci448.jlwoolf.filepp.data.Data
+import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
 import kotlin.math.abs
@@ -34,6 +37,7 @@ import kotlin.math.abs
 class DirectoryFragment : Fragment(), SensorEventListener {
     private var _binding: FragmentDirectoryBinding? = null
     private val binding get() = _binding!!
+    private lateinit var repository: Repository
 
     private val directoryArgs: DirectoryFragmentArgs by navArgs()
     private lateinit var storage: File
@@ -165,6 +169,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         )
 
         setHasOptionsMenu(true)
+        repository = Repository.getInstance(requireContext())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -228,6 +233,17 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         secondaryColor = sharedPreferences.getInt("secondary_color", 0)
 
         load()
+
+        repository.getData(storage.path).observe(
+            viewLifecycleOwner,
+            Observer { data ->
+                data?.let {
+                    this.backgroundColor = data.backgroundColor
+                    this.secondaryColor = data.secondaryColor
+                    updateColors()
+                }
+            })
+
         updateColors()
     }
 
@@ -298,6 +314,14 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     backgroundColor = MainActivity.randomColor()
                     secondaryColor = MainActivity.randomColor()
                     updateColors()
+
+                    repository.addData(Data(
+                        path = storage.path,
+                        backgroundColor = backgroundColor,
+                        secondaryColor = secondaryColor,
+                        imagePath = ".",
+                        textColor = backgroundColor)
+                    )
                 }
                 lastX = x
                 lastY = y

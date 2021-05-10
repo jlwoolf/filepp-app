@@ -20,7 +20,7 @@ class Repository private constructor(private val dao: Dao){
                 return instance
             }
         }
-        private const val LOG_TAG = "TTT.HistoryRepository"
+        private const val LOG_TAG = "448.Repository"
     }
 
     //two main functions that are used to read and write data
@@ -43,8 +43,12 @@ class Repository private constructor(private val dao: Dao){
     }
     fun updateData(data: Data) {
         executor.execute {
-            Log.d(LOG_TAG, "updateData() called")
-            dao.updateData(data)
+            if(dao.getData(data.path).value == null) {
+                addData(data)
+            } else {
+                Log.d(LOG_TAG, "updateData() called")
+                dao.updateData(data)
+            }
         }
     }
 }
