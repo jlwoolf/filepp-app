@@ -45,12 +45,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
         const val CHANNEL_ID = "fpp"
 
         fun randomColor(): Int {
-            val randInts = List(3) { rand.nextInt(0, 255) }
-            val red = randInts[0]
-            val green = randInts[1]
-            val blue = randInts[2]
-
-            return 255 and 0xff shl 24 or (red and 0xff shl 16) or (green and 0xff shl 8) or (blue and 0xff)
+            return Color.rgb(rand.nextInt(0,255), rand.nextInt(0,255), rand.nextInt(0,255))
         }
     }
 
@@ -123,7 +118,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
 
     fun createNotification() {
         val args: Bundle = Bundle()
-        val path = sharedPreferences.getString("pinned_path", "/storage/self/primary")
+        val path: String? = sharedPreferences.getString("pinned_path", null)
         if (path != null) {
             args.putSerializable("file", File(path))
 
@@ -146,6 +141,8 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
                 // notificationId is a unique int for each notification that you must define
                 notify(0, builder.build())
             }
+        } else {
+            Log.d(LOG_TAG, "null")
         }
     }
 

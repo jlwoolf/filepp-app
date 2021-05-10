@@ -83,4 +83,11 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        updateColors()
+    }
 }

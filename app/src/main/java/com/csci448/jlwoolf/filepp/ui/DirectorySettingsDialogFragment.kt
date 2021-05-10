@@ -3,10 +3,7 @@ package com.csci448.jlwoolf.filepp.ui
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.ActivityNotFoundException
-import android.content.ComponentName
-import android.content.ContentValues
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
@@ -19,6 +16,7 @@ import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
+import androidx.preference.PreferenceManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectorySettingsDialogBinding
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -32,10 +30,10 @@ class DirectorySettingsDialogFragment(
     private var name: String,
     private var background: Int,
     private var secondary: Int,
-    private var icon: Int,
-    private val callback: (name: String, background: Int, secondary: Int, icon: Int) -> Unit
+    private val callback: (name: String, background: Int, secondary: Int, reset: Boolean) -> Unit
 ) : DialogFragment(){
-
+    private var reset: Boolean = false
+    private lateinit var sharedPreferences: SharedPreferences
     companion object{
         private const val COLOR_PICKER_TAG = "DirectorySettingsDialogFragmentColorPicker"
     }
@@ -45,9 +43,12 @@ class DirectorySettingsDialogFragment(
             .setDialogTitle(title).setColor(color)
             .create().apply {
                 setColorPickerDialogListener(object : ColorPickerDialogListener{
-                    override fun onColorSelected(id: Int, color: Int) {
-                        consumer(color)
-                        button.setBackgroundColor(color)
+                    override fun onColorSelected(id: Int, newColor: Int) {
+                        if(color != newColor) {
+                            reset = false
+                        }
+                        consumer(newColor)
+                        button.setBackgroundColor(newColor)
                     }
                     override fun onDialogDismissed(id: Int) = Unit
                 })
@@ -56,6 +57,7 @@ class DirectorySettingsDialogFragment(
     }
 
     override fun onCreateDialog(state: Bundle?): Dialog {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val binding = FragmentDirectorySettingsDialogBinding.inflate(LayoutInflater.from(context)).apply {
             directoryNameEditor.apply{
                 addTextChangedListener{ watcher -> name = watcher.toString() }
@@ -65,13 +67,21 @@ class DirectorySettingsDialogFragment(
             directoryBackgroundColorEditor.setBackgroundColor(background)
             directorySecondaryColorEditor.setOnClickListener { showColorPicker(R.string.secondary, secondary, directorySecondaryColorEditor) { color -> secondary = color} }
             directorySecondaryColorEditor.setBackgroundColor(secondary)
+
+            directoryResetColor.setOnClickListener {
+                reset = true
+                background = sharedPreferences.getInt("background_color", 0)
+                secondary = sharedPreferences.getInt("secondary_color", 0)
+                directorySecondaryColorEditor.setBackgroundColor(secondary)
+                directoryBackgroundColorEditor.setBackgroundColor(background)
+            }
         }
         return activity?.let { activity ->
             // create a dialog to handle directory settings
             AlertDialog.Builder(activity)
                 .setView(binding.root)
                 .setMessage(getString(R.string.directory_settings))
-                .setPositiveButton(getText(R.string.ok)){ _, _ -> callback(name,background,secondary,icon) }
+                .setPositiveButton(getText(R.string.ok)){ _, _ -> callback(name,background,secondary,reset) }
                 .setNegativeButton(getString(R.string.cancel)){ dialog, _ -> dialog.cancel() }
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")

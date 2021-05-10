@@ -1,12 +1,16 @@
 package com.csci448.jlwoolf.filepp.ui
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentFileBinding
 import java.io.File
@@ -19,8 +23,22 @@ class FileFragment : Fragment() {
     private lateinit var file: File
     private lateinit var fileViewModel: FileViewModel
 
+    private lateinit var sharedPreferences: SharedPreferences
+    private var backgroundColor: Int = 0
+    private var secondaryColor: Int = 0
+
     companion object {
         private const val LOG_TAG = "448.FileFragment"
+    }
+
+    private fun updateColors() {
+
+        binding.fileLinearLayout.setBackgroundColor(backgroundColor)
+        binding.filePathTextView.setBackgroundColor(backgroundColor)
+        binding.fileTextView.setBackgroundColor(backgroundColor)
+        requireActivity().window.statusBarColor = secondaryColor
+        requireActivity().window.navigationBarColor = secondaryColor
+        (activity as AppCompatActivity?)!!.supportActionBar?.setBackgroundDrawable(ColorDrawable(secondaryColor))
     }
 
     override fun onAttach(context: Context) {
@@ -34,6 +52,9 @@ class FileFragment : Fragment() {
 
         file = fileArgs.file
         setHasOptionsMenu(true)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -70,6 +91,9 @@ class FileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        updateColors()
     }
 
     override fun onPause() {

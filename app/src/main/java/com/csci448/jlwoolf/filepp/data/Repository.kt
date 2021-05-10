@@ -53,4 +53,9 @@ class Repository private constructor(private val dao: Dao){
     }
 
     fun getPinned(): LiveData<Data?> = dao.getPinned()
+    fun removeData(data: Data) {
+        executor.execute {
+            dao.removeData(data)
+        }
+    }
 }

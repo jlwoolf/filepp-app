@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDeepLinkBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
@@ -168,17 +169,51 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         })
     }
 
-    private fun applySettings(name: String, background: Int, secondary: Int, icon: Int) {
-        backgroundColor = background
-        secondaryColor = secondary
-        updateColors()
+    private fun applySettings(name: String, background: Int, secondary: Int, reset: Boolean) {
+        if(!reset) {
+            Log.d(LOG_TAG, "new colors")
+            backgroundColor = background
+            secondaryColor = secondary
+            updateColors()
 
-        repository.addData(Data(
-            path = storage.path,
-            backgroundColor = backgroundColor,
-            secondaryColor = secondaryColor,
-            imagePath = ".")
-        )
+            repository.addData(
+                Data(
+                    path = storage.path,
+                    backgroundColor = backgroundColor,
+                    secondaryColor = secondaryColor,
+                    imagePath = "."
+                )
+            )
+        } else {
+            Log.d(LOG_TAG, "old colors")
+
+            backgroundColor = sharedPreferences.getInt("background_color", 0)
+            secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+            updateColors()
+
+            repository.removeData(Data(
+                path = storage.path,
+                backgroundColor = backgroundColor,
+                secondaryColor = secondaryColor,
+                imagePath = "."
+            ))
+        }
+
+        if(name != storage.name) {
+            //val path = storage.parent + "/" + name
+            //storage.renameTo(File(path))
+
+            //val args: Bundle = Bundle()
+            //args.putSerializable("file", storage)
+
+            /*findNavController().navigate(
+                R.id.action_directoryFragment_self,
+                args,
+                NavOptions.Builder()
+                    .setPopUpTo(R.id.action_directoryFragment_self, true)
+                    .build()
+            )*/
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -274,6 +309,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", 0)}")
 
         load()
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
         repository.getData(storage.path).observe(
             viewLifecycleOwner,
             Observer { data ->
@@ -328,7 +365,6 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     storage.name,
                     backgroundColor,
                     secondaryColor,
-                    0, // todo get icon id
                     this::applySettings
                 ).show(childFragmentManager,DIRECTORY_SETTINGS)
             }
@@ -337,6 +373,10 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                 item.isChecked = !item.isChecked
                 if(!item.isChecked) {
                     sharedPreferences.edit().putString("pinned_path", null).apply()
+                    with(NotificationManagerCompat.from(requireActivity())) {
+                        // notificationId is a unique int for each notification that you must define
+                        cancel(0)
+                    }
                 } else {
                     sharedPreferences.edit().putString("pinned_path", storage.path).apply()
                     createNotification()
@@ -363,12 +403,12 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     secondaryColor = MainActivity.randomColor()
                     updateColors()
 
-                    repository.addData(Data(
+                    /*repository.addData(Data(
                         path = storage.path,
                         backgroundColor = backgroundColor,
                         secondaryColor = secondaryColor,
                         imagePath = ".")
-                    )
+                    )*/
                 }
                 lastX = x
                 lastY = y
