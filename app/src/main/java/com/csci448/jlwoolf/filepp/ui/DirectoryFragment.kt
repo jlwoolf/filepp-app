@@ -1,5 +1,7 @@
 package com.csci448.jlwoolf.filepp.ui
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -9,6 +11,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -18,10 +21,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
@@ -31,7 +37,6 @@ import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.data.Data
 import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import java.io.File
 import kotlin.math.abs
 
@@ -45,6 +50,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     private lateinit var directoryViewModel: DirectoryViewModel
     private lateinit var adapter: DirectoryAdapter
+
 
     private lateinit var readFilePermissionCallback: ActivityResultCallback<Boolean>
     private lateinit var readFilePermissionLauncher: ActivityResultLauncher<String>
@@ -63,7 +69,6 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     private var backgroundColor: Int = 0
     private var secondaryColor: Int = 0
-    private var textColor: Int = 0
 
     val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the returned Uri
@@ -173,12 +178,19 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
         setHasOptionsMenu(true)
         repository = Repository.getInstance(requireContext())
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         Log.d(LOG_TAG, "onCreateOptionsMenu() called")
         inflater.inflate(R.menu.fragment_directory, menu)
+
+        if(sharedPreferences.getString("pinned_path", null) == storage.path) {
+            menu.getItem(2).isChecked = true
+        }
     }
 
     override fun onCreateView(
@@ -190,6 +202,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
         _binding = FragmentDirectoryBinding.inflate(inflater, container, false)
         binding.directoryRecycleView.layoutManager = LinearLayoutManager(context)
+
         return binding.root
     }
 
@@ -229,14 +242,9 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", 0)}")
 
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
-
         load()
-
         repository.getData(storage.path).observe(
             viewLifecycleOwner,
             Observer { data ->
@@ -245,7 +253,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     this.secondaryColor = data.secondaryColor
                     updateColors()
                 }
-            })
+            }
+        )
 
         updateColors()
     }
@@ -295,7 +304,14 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                 ).show(childFragmentManager,DIRECTORY_SETTINGS)
             }
             R.id.menu_pin_notification -> {
+                Log.d(LOG_TAG, "checking notification")
                 item.isChecked = !item.isChecked
+                if(!item.isChecked) {
+                    sharedPreferences.edit().putString("pinned_path", null).apply()
+                } else {
+                    sharedPreferences.edit().putString("pinned_path", storage.path).apply()
+                    createNotification()
+                }
             }
             else -> return super.onOptionsItemSelected(item)
         }
@@ -316,7 +332,6 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     Log.d(LOG_TAG, "shake detected w/ speed: $speed")
                     backgroundColor = MainActivity.randomColor()
                     secondaryColor = MainActivity.randomColor()
-                    textColor = MainActivity.randomColor()
                     updateColors()
 
                     repository.addData(Data(
@@ -334,4 +349,33 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    fun createNotification() {
+        val args: Bundle = Bundle()
+        val path = sharedPreferences.getString("pinned_path", "/storage/self/primary")
+        if(path != null) {
+            args.putSerializable("file", File(path))
+
+            val pendingIntent = NavDeepLinkBuilder(requireActivity())
+                .setComponentName(MainActivity::class.java)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.directoryFragment)
+                .setArguments(args)
+                .createPendingIntent()
+
+            val builder = NotificationCompat.Builder(requireActivity(), MainActivity.CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_menu_delete)
+                .setContentTitle("Test Title")
+                .setContentText("Test Content")
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+
+            with(NotificationManagerCompat.from(requireActivity())) {
+                // notificationId is a unique int for each notification that you must define
+                notify(0, builder.build())
+            }
+        }
+
+    }
 }

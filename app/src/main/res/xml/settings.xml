@@ -12,7 +12,6 @@
             app:defaultValue="true"
             app:key="hidden_files_switch"
             app:title="Show hidden files" />
-
     </PreferenceCategory>
 
     <PreferenceCategory

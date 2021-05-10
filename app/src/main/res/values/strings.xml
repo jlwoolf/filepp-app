@@ -15,4 +15,6 @@
     <string name="select">select</string>
     <string name="background">Background</string>
     <string name="secondary">Secondary</string>
+    <string name="channel_name">Fpp Channel</string>
+    <string name="channel_description">This is the fpp channel</string>
 </resources>

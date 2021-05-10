@@ -51,4 +51,6 @@ class Repository private constructor(private val dao: Dao){
             }
         }
     }
+
+    fun getPinned(): LiveData<Data?> = dao.getPinned()
 }
