@@ -19,7 +19,8 @@
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:title="Background Color"
             app:cpv_showAlphaSlider="true"
-            app:key="background_color" />
+            app:key="background_color"
+            app:defaultValue="0x000000"/>
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:title="Secondary Color"
             app:cpv_showAlphaSlider="true"
