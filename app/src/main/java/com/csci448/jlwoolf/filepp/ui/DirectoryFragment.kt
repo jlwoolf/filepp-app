@@ -31,6 +31,7 @@ import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.data.Data
 import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import java.io.File
 import kotlin.math.abs
 
