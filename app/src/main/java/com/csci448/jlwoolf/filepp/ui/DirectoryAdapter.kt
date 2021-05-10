@@ -34,7 +34,7 @@ class DirectoryAdapter(private val files: List<FileItem>,
             selected.remove(item)
         }
 
-        Log.d(LOG_TAG, "selected count = ${selected.size}")
+        //Log.d(LOG_TAG, "selected count = ${selected.size}")
 
         if(selected.isEmpty()) {
             multiselect = false
@@ -48,7 +48,7 @@ class DirectoryAdapter(private val files: List<FileItem>,
         holder.bind(file)
 
         holders[file] = holder
-        Log.d(LOG_TAG, "holder count = ${holders.size}, item count = ${files.size}")
+        //Log.d(LOG_TAG, "holder count = ${holders.size}, item count = ${files.size}")
         holder.binding.itemFragmentCheckbox.isVisible = multiselect
 
         // multiselect support

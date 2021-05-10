@@ -11,20 +11,20 @@ import java.util.*
 @Dao
 interface Dao {
     @Query("SELECT * FROM data")
-    fun getHistoryItems(): LiveData<List<Data>>
+    fun getData(): LiveData<List<Data>>
 
     @Query("SELECT * FROM data WHERE path=(:path)")
-    fun getHistoryItem(path: String): LiveData<Data?>
+    fun getData(path: String): LiveData<Data?>
 
     @Update
-    fun updateHistoryItem(data: Data)
+    fun updateData(data: Data)
 
     @Insert
-    fun addHistoryItem(data: Data)
+    fun addData(data: Data)
 
     @Delete
-    fun removeHistoryItem(data: Data)
+    fun removeData(data: Data)
 
     @Query("DELETE FROM data")
-    fun clearHistoryItems()
+    fun clearData()
 }

@@ -1,7 +1,13 @@
 package com.csci448.jlwoolf.filepp.ui
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -10,18 +16,24 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.csci448.jlwoolf.filepp.MainActivity
 import com.csci448.jlwoolf.filepp.R
+import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
+import kotlin.math.abs
 
-class DirectoryFragment : Fragment() {
+class DirectoryFragment : Fragment(), SensorEventListener {
     private var _binding: FragmentDirectoryBinding? = null
     private val binding get() = _binding!!
 
@@ -36,6 +48,19 @@ class DirectoryFragment : Fragment() {
     private lateinit var manageFilePermissionCallback: ActivityResultCallback<Boolean>
     private lateinit var managePermissionLauncher: ActivityResultLauncher<String>
 
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sensorManager: SensorManager
+    private lateinit var accelerometer: Sensor
+
+    private var lastUpdate = System.currentTimeMillis()
+
+    private var lastX = 0.0f
+    private var lastY = 0.0f
+    private var lastZ = 0.0f
+
+    private var backgroundColor: Int = 0
+    private var secondaryColor: Int = 0
+
     val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the returned Uri
     }
@@ -46,6 +71,7 @@ class DirectoryFragment : Fragment() {
         private const val NEW_FOLDER = "NewFolder"
         private const val DIRECTORY_SETTINGS = "DirectorySettings"
         private const val CHANNEL_ID = "fpp_channel"
+        private const val SHAKE_THRESHOLD = 2500
     }
 
     private fun hasReadFilePermission() = ContextCompat.checkSelfPermission(
@@ -54,6 +80,7 @@ class DirectoryFragment : Fragment() {
 
     private fun updateUI(files: List<FileItem>) {
         // set up adapter to show files and manage file clicks
+        //repository.getData(storage.path)
         DirectoryAdapter(files.sortedBy { it.file.name }) { fileItem: FileItem ->
             if(!fileItem.file.isDirectory) {
                 val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(
@@ -111,6 +138,9 @@ class DirectoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(LOG_TAG, "onCreate() called")
+
+        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         val factory = DirectoryViewModelFactory()
         directoryViewModel = ViewModelProvider(this@DirectoryFragment, factory)
@@ -182,6 +212,15 @@ class DirectoryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", 0)}")
+
+        binding.directoryLinearLayout.setBackgroundColor(sharedPreferences.getInt("background_color", 0))
+        requireActivity().window.statusBarColor = sharedPreferences.getInt("secondary_color", 0)
+        requireActivity().window.navigationBarColor = sharedPreferences.getInt("secondary_color", 0)
+
+
         load()
     }
 
@@ -227,7 +266,6 @@ class DirectoryFragment : Fragment() {
                     0, // todo get icon id
                     this::applySettings
                 ).show(childFragmentManager,DIRECTORY_SETTINGS)
-                getContent.launch("image/*")
             }
             R.id.menu_pin_notification -> {
 
@@ -236,4 +274,28 @@ class DirectoryFragment : Fragment() {
         }
         return true
     }
+
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+            val curTime = System.currentTimeMillis()
+            if (curTime - lastUpdate > 100 && sharedPreferences.getBoolean("randomize_switch", true)) {
+                val diffTime: Long = curTime - lastUpdate
+                lastUpdate = curTime
+                val x = event.values?.get(0) ?: 0.0f
+                val y = event.values?.get(1) ?: 0.0f
+                val z = event.values?.get(2) ?: 0.0f
+                val speed: Float = abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000
+                if (speed > SHAKE_THRESHOLD) {
+                    Log.d("sensor", "shake detected w/ speed: $speed")
+                    Toast.makeText(requireContext(), "shake detected w/ speed: $speed", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                lastX = x
+                lastY = y
+                lastZ = z
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }

@@ -25,19 +25,26 @@ class Repository private constructor(private val dao: Dao){
 
     //two main functions that are used to read and write data
     //to the history database
-    fun getHistoryItems(): LiveData<List<Data>> = dao.getHistoryItems()
+    fun getData(): LiveData<List<Data>> = dao.getData()
+    fun getData(path: String): LiveData<Data?> = dao.getData(path)
 
-    fun addHistoryItem(data: Data) {
+    fun addData(data: Data) {
         executor.execute {
-            Log.d(LOG_TAG, "addHistoryItem() called")
-            dao.addHistoryItem(data)
+            Log.d(LOG_TAG, "addData() called")
+            dao.addData(data)
         }
     }
     //helper function to clear the database
     fun clearDatabase() {
         executor.execute {
             Log.d(LOG_TAG, "clearDatabase() called")
-            dao.clearHistoryItems()
+            dao.clearData()
+        }
+    }
+    fun updateData(data: Data) {
+        executor.execute {
+            Log.d(LOG_TAG, "updateData() called")
+            dao.updateData(data)
         }
     }
 }
