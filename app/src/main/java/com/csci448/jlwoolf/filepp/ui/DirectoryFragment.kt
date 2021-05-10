@@ -3,7 +3,7 @@ package com.csci448.jlwoolf.filepp.ui
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -19,7 +19,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,7 +27,6 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csci448.jlwoolf.filepp.MainActivity
 import com.csci448.jlwoolf.filepp.R
-import com.csci448.jlwoolf.filepp.data.Repository
 import com.csci448.jlwoolf.filepp.databinding.FragmentDirectoryBinding
 import java.io.File
 import kotlin.math.abs
@@ -77,6 +75,13 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     private fun hasReadFilePermission() = ContextCompat.checkSelfPermission(
         requireContext(), REQUIRED_READ_FILE_PERMISSION
     ) == PackageManager.PERMISSION_GRANTED
+
+    private fun updateColors() {
+        binding.directoryLinearLayout.setBackgroundColor(backgroundColor)
+        requireActivity().window.statusBarColor = secondaryColor
+        requireActivity().window.navigationBarColor = secondaryColor
+        (activity as AppCompatActivity?)!!.supportActionBar?.setBackgroundDrawable(ColorDrawable(secondaryColor))
+    }
 
     private fun updateUI(files: List<FileItem>) {
         // set up adapter to show files and manage file clicks
@@ -132,6 +137,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         Log.d(LOG_TAG, "onAttach() called")
     }
 
@@ -213,20 +219,22 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
 
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", 0)}")
 
-        binding.directoryLinearLayout.setBackgroundColor(sharedPreferences.getInt("background_color", 0))
-        requireActivity().window.statusBarColor = sharedPreferences.getInt("secondary_color", 0)
-        requireActivity().window.navigationBarColor = sharedPreferences.getInt("secondary_color", 0)
-
+        backgroundColor = sharedPreferences.getInt("background_color", 0)
+        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
 
         load()
+        updateColors()
     }
 
     override fun onPause() {
         super.onPause()
         Log.d(LOG_TAG, "onPause() called")
+        sensorManager.unregisterListener(this)
     }
 
     override fun onStop() {
@@ -286,9 +294,10 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                 val z = event.values?.get(2) ?: 0.0f
                 val speed: Float = abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000
                 if (speed > SHAKE_THRESHOLD) {
-                    Log.d("sensor", "shake detected w/ speed: $speed")
-                    Toast.makeText(requireContext(), "shake detected w/ speed: $speed", Toast.LENGTH_SHORT)
-                        .show()
+                    Log.d(LOG_TAG, "shake detected w/ speed: $speed")
+                    backgroundColor = MainActivity.randomColor()
+                    secondaryColor = MainActivity.randomColor()
+                    updateColors()
                 }
                 lastX = x
                 lastY = y

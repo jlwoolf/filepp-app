@@ -1,23 +1,22 @@
 package com.csci448.jlwoolf.filepp
 
+import android.R
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
 import com.csci448.jlwoolf.filepp.databinding.ActivityMainBinding
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
-import kotlin.math.abs
 import kotlin.random.Random
 
 
-class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEventListener {
+class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
@@ -31,6 +30,16 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
     companion object {
         private const val LOG_TAG = "448.MainActivity"
         private const val SHAKE_THRESHOLD = 2500
+
+        fun randomColor(): Int {
+            val rand = Random(System.currentTimeMillis())
+            val randInts = List(3) { rand.nextInt(0, 255) }
+            val red = randInts[0]
+            val green = randInts[1]
+            val blue = randInts[2]
+
+            return 255 and 0xff shl 24 or (red and 0xff shl 16) or (green and 0xff shl 8) or (blue and 0xff)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,10 +48,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     }
 
@@ -54,13 +59,12 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
     }
 
     override fun onPause() {
         super.onPause()
         Log.d(LOG_TAG, "onPause() called")
-        sensorManager.unregisterListener(this)
+
     }
 
     override fun onStop() {
@@ -84,43 +88,5 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, SensorEvent
 
     override fun onDialogDismissed(dialogId: Int) {
 
-    }
-
-    override fun onSensorChanged(event: SensorEvent) {
-        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
-            val curTime = System.currentTimeMillis()
-            if (curTime - lastUpdate > 100 && sharedPreferences.getBoolean("randomize_switch", true)) {
-                val diffTime: Long = curTime - lastUpdate
-                lastUpdate = curTime
-                val x = event.values?.get(0) ?: 0.0f
-                val y = event.values?.get(1) ?: 0.0f
-                val z = event.values?.get(2) ?: 0.0f
-                val speed: Float = abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000
-                if (speed > SHAKE_THRESHOLD) {
-                    Log.d("sensor", "shake detected w/ speed: $speed")
-                    Toast.makeText(this, "shake detected w/ speed: $speed", Toast.LENGTH_SHORT)
-                        .show()
-                    randomizeColors()
-                }
-                lastX = x
-                lastY = y
-                lastZ = z
-            }
-        }
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {    }
-
-    fun randomizeColors() {
-        val settingsToRandomize = arrayOf( "a", "b", "c" )
-        val rand = Random(System.currentTimeMillis())
-        val randInts = List(settingsToRandomize.size*3) { rand.nextInt(0, 255) }
-        for ((i, s) in settingsToRandomize.withIndex()) {
-            val red = randInts[i*3+0].toString(16)
-            val green = randInts[i*3+1].toString(16)
-            val blue = randInts[i*3+2].toString(16)
-
-            val hexColor = red + green + blue
-        }
     }
 }
