@@ -30,9 +30,9 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener {
     companion object {
         private const val LOG_TAG = "448.MainActivity"
         private const val SHAKE_THRESHOLD = 2500
+        val rand = Random(System.currentTimeMillis())
 
         fun randomColor(): Int {
-            val rand = Random(System.currentTimeMillis())
             val randInts = List(3) { rand.nextInt(0, 255) }
             val red = randInts[0]
             val green = randInts[1]
