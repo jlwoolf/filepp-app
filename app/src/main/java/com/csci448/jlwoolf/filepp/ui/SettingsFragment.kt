@@ -18,8 +18,8 @@ import com.jaredrummler.android.colorpicker.ColorPreferenceCompat
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
-    private var backgroundColor: Int = 0
-    private var secondaryColor: Int = 0
+    private var backgroundColor: Int = DEFAULT_COLOR
+    private var secondaryColor: Int = DEFAULT_COLOR
 
     private lateinit var backgroundColorPreference: ColorPreferenceCompat
     private lateinit var secondaryColorPreference: ColorPreferenceCompat
@@ -27,6 +27,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     companion object {
         private const val LOG_TAG = "448.SettingsFragment"
+        private const val DEFAULT_COLOR = 0
     }
 
     private fun updateColors() {
@@ -39,8 +40,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        backgroundColor = preferenceManager.sharedPreferences.getInt("background_color", 0)
-        secondaryColor = preferenceManager.sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = preferenceManager.sharedPreferences.getInt("background_color", DEFAULT_COLOR)
+        secondaryColor = preferenceManager.sharedPreferences.getInt("secondary_color", DEFAULT_COLOR)
 
         backgroundColorPreference = preferenceManager.findPreference("background_color")!!
         secondaryColorPreference = preferenceManager.findPreference("secondary_color")!!
@@ -58,6 +59,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         resetCustomizationPreference.setOnPreferenceClickListener {
             Repository.getInstance(requireContext()).clearDatabase()
+            backgroundColorPreference.saveValue(DEFAULT_COLOR)
+            secondaryColorPreference.saveValue(DEFAULT_COLOR)
+            updateColors()
             true
         }
     }

@@ -42,6 +42,8 @@ class DirectorySettingsDialogFragment(
     private fun showColorPicker(@StringRes title: Int, color: Int, consumer: (color: Int) -> Unit){
         ColorPickerDialog.newBuilder()
             .setDialogTitle(title)
+            .setShowAlphaSlider(true)
+            .setColor(color)
             .create().apply {
                 setColorPickerDialogListener(object : ColorPickerDialogListener{
                     override fun onColorSelected(id: Int, newColor: Int) {

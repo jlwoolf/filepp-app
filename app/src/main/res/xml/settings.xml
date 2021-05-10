@@ -18,11 +18,11 @@
         app:title="Customization Settings">
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:title="Background Color"
-            app:defaultValue="@color/white"
+            app:cpv_showAlphaSlider="true"
             app:key="background_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:title="Secondary Color"
-            app:defaultValue="@color/white"
+            app:cpv_showAlphaSlider="true"
             app:key="secondary_color" />
         <Preference
             app:key="reset_customization"
