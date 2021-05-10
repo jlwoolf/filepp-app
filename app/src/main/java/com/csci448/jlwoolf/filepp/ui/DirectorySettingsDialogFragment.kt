@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
@@ -38,9 +39,9 @@ class DirectorySettingsDialogFragment(
         private const val COLOR_PICKER_TAG = "DirectorySettingsDialogFragmentColorPicker"
     }
 
-    private fun showColorPicker(@StringRes title: Int, color: Int, button: Button, consumer: (color: Int) -> Unit){
+    private fun showColorPicker(@StringRes title: Int, color: Int, consumer: (color: Int) -> Unit){
         ColorPickerDialog.newBuilder()
-            .setDialogTitle(title).setColor(color)
+            .setDialogTitle(title)
             .create().apply {
                 setColorPickerDialogListener(object : ColorPickerDialogListener{
                     override fun onColorSelected(id: Int, newColor: Int) {
@@ -48,7 +49,6 @@ class DirectorySettingsDialogFragment(
                             reset = false
                         }
                         consumer(newColor)
-                        button.setBackgroundColor(newColor)
                     }
                     override fun onDialogDismissed(id: Int) = Unit
                 })
@@ -63,17 +63,30 @@ class DirectorySettingsDialogFragment(
                 addTextChangedListener{ watcher -> name = watcher.toString() }
                 setText(name)
             }
-            directoryBackgroundColorEditor.setOnClickListener { showColorPicker(R.string.background, background, directoryBackgroundColorEditor){ color -> background = color} }
-            directoryBackgroundColorEditor.setBackgroundColor(background)
-            directorySecondaryColorEditor.setOnClickListener { showColorPicker(R.string.secondary, secondary, directorySecondaryColorEditor) { color -> secondary = color} }
-            directorySecondaryColorEditor.setBackgroundColor(secondary)
-
+            directoryBackgroundColorEditor.let { button ->
+                button.backgroundTintList = ColorStateList.valueOf(background)
+                button.setOnClickListener {
+                    showColorPicker(R.string.background,background){ color ->
+                        button.backgroundTintList = ColorStateList.valueOf(color)
+                        background = color
+                    }
+                }
+            }
+            directorySecondaryColorEditor.let { button: Button ->
+                button.backgroundTintList = ColorStateList.valueOf(secondary)
+                button.setOnClickListener {
+                    showColorPicker(R.string.secondary,secondary){ color ->
+                        button.backgroundTintList = ColorStateList.valueOf(color)
+                        secondary = color
+                    }
+                }
+            }
             directoryResetColor.setOnClickListener {
                 reset = true
                 background = sharedPreferences.getInt("background_color", 0)
                 secondary = sharedPreferences.getInt("secondary_color", 0)
-                directorySecondaryColorEditor.setBackgroundColor(secondary)
-                directoryBackgroundColorEditor.setBackgroundColor(background)
+                directorySecondaryColorEditor.backgroundTintList = ColorStateList.valueOf(secondary)
+                directoryBackgroundColorEditor.backgroundTintList = ColorStateList.valueOf(background)
             }
         }
         return activity?.let { activity ->
