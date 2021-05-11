@@ -29,6 +29,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var sharedPreferences: SharedPreferences
 
+    private var readFilePermissionGrantedCallback: () -> Unit = {}
     private lateinit var readFilePermissionCallback: ActivityResultCallback<Boolean>
     private lateinit var readFilePermissionLauncher: ActivityResultLauncher<String>
 
@@ -47,12 +48,12 @@ class HomeFragment : Fragment() {
         backgroundColor = sharedPreferences.getInt("background_color", 0)
         secondaryColor = sharedPreferences.getInt("secondary_color", 0)
 
-        readFilePermissionCallback = ActivityResultCallback { isGranted: Boolean -> if (isGranted) {
-            Log.d(LOG_TAG, "permission granted!")
-        } else {
-            Log.d(LOG_TAG, "permission denied")
-            Toast.makeText(requireContext(), R.string.reason_for_permission, Toast.LENGTH_LONG).show()
-        }
+        readFilePermissionCallback = ActivityResultCallback { isGranted: Boolean ->
+            if (isGranted)
+                readFilePermissionGrantedCallback()
+            else
+                Toast.makeText(requireContext(), R.string.reason_for_permission, Toast.LENGTH_LONG).show()
+            readFilePermissionGrantedCallback = {}
         }
         readFilePermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission(),
@@ -83,63 +84,50 @@ class HomeFragment : Fragment() {
         requireContext(), REQUIRED_READ_FILE_PERMISSION
     ) == PackageManager.PERMISSION_GRANTED
 
-    override fun onStart() {
-        super.onStart()
-        if(!hasReadFilePermission()) {
-            Log.d(LOG_TAG, "user has NOT granted permission to read files")
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    requireActivity(),
-                    REQUIRED_READ_FILE_PERMISSION
-                )
-            ) {
-                Log.d(LOG_TAG, "show an explanation")
-                Toast.makeText(
-                    requireContext(),
-                    R.string.reason_for_permission,
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                Log.d(LOG_TAG, "no explanation needed, request permission")
+    private fun attemptFileRead(callback: () -> Unit){
+        if(hasReadFilePermission())
+            callback()
+        else{
+            if(ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),REQUIRED_READ_FILE_PERMISSION))
+                Toast.makeText(requireContext(),R.string.reason_for_permission,Toast.LENGTH_LONG).show()
+            else{
+                readFilePermissionGrantedCallback = callback
                 readFilePermissionLauncher.launch(REQUIRED_READ_FILE_PERMISSION)
             }
-
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         binding.homeInternalStorage.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment()
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
 
         binding.homeTopLeftButtton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Pictures"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
         binding.homeTopMiddleButton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Movies"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
         binding.homeTopRightButton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Music"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
         binding.homeBottomLeftButton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
         binding.homeBottomMiddleButton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Download"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
         binding.homeBottomRightButton.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary"))
-            if(hasReadFilePermission())
-                findNavController().navigate(action)
+            attemptFileRead { findNavController().navigate(action) }
         }
     }
 
