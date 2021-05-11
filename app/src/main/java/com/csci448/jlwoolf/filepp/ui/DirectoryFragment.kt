@@ -94,7 +94,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     private fun updateUI(files: MutableList<FileItem>) {
         // set up adapter to show files and manage file clicks
         //repository.getData(storage.path)
-        DirectoryAdapter(files.sortedBy { it.file.name },
+        val hidden = PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("hidden_files_switch",false)
+        DirectoryAdapter(files.sortedBy { it.file.name }.filter { item -> !item.file.name.startsWith(".") || hidden },
             { fileItem: FileItem ->
                 if(!fileItem.file.isDirectory) {
                     val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(fileItem.file)
