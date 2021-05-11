@@ -17,7 +17,7 @@
         <item name="ic_image">@drawable/ic_image_dark</item>
         <item name="title_bar_color">@color/dark_gray</item>
 
-        <item name="defaultBackground">@color/cardview_dark_background</item>
+        <item name="defaultBackground">@color/gray9_dark</item>
         <item name="defaultSecondary">@color/purple_500</item>
     </style>
 </resources>

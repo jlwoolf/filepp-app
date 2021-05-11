@@ -2,11 +2,10 @@ package com.csci448.jlwoolf.filepp.ui
 
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +13,18 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.csci448.jlwoolf.filepp.MainActivity
 import com.csci448.jlwoolf.filepp.R
 import com.csci448.jlwoolf.filepp.databinding.FragmentHomeBinding
 import java.io.File
+
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
@@ -44,9 +46,18 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.defaultBackground, typedValue, true)
+        backgroundColor = typedValue.data
+        Log.d(LOG_TAG, "background color $backgroundColor")
+        theme.resolveAttribute(R.attr.defaultSecondary, typedValue, true)
+        secondaryColor = typedValue.data
+        Log.d(LOG_TAG, "secondary color $secondaryColor")
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
 
         readFilePermissionCallback = ActivityResultCallback { isGranted: Boolean ->
             if (isGranted)
@@ -133,8 +144,8 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
         updateColors()
     }
 }
