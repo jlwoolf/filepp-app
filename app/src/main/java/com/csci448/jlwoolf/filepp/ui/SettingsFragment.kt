@@ -3,6 +3,7 @@ package com.csci448.jlwoolf.filepp.ui
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,8 +41,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        backgroundColor = preferenceManager.sharedPreferences.getInt("background_color", DEFAULT_COLOR)
-        secondaryColor = preferenceManager.sharedPreferences.getInt("secondary_color", DEFAULT_COLOR)
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.defaultBackground, typedValue, true)
+        backgroundColor = typedValue.data
+        Log.d(LOG_TAG, "background color $backgroundColor")
+        theme.resolveAttribute(R.attr.defaultSecondary, typedValue, true)
+        secondaryColor = typedValue.data
+        Log.d(LOG_TAG, "secondary color $secondaryColor")
+
+        backgroundColor = preferenceManager.sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = preferenceManager.sharedPreferences.getInt("secondary_color", secondaryColor)
 
         backgroundColorPreference = preferenceManager.findPreference("background_color")!!
         secondaryColorPreference = preferenceManager.findPreference("secondary_color")!!
@@ -59,8 +69,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         resetCustomizationPreference.setOnPreferenceClickListener {
             Repository.getInstance(requireContext()).clearDatabase()
-            backgroundColorPreference.saveValue(DEFAULT_COLOR)
-            secondaryColorPreference.saveValue(DEFAULT_COLOR)
+
+            theme.resolveAttribute(R.attr.defaultBackground, typedValue, true)
+            backgroundColor = typedValue.data
+            Log.d(LOG_TAG, "background color $backgroundColor")
+            theme.resolveAttribute(R.attr.defaultSecondary, typedValue, true)
+            secondaryColor = typedValue.data
+            Log.d(LOG_TAG, "secondary color $secondaryColor")
+
+            backgroundColorPreference.saveValue(backgroundColor)
+            secondaryColorPreference.saveValue(secondaryColor)
             updateColors()
             true
         }
