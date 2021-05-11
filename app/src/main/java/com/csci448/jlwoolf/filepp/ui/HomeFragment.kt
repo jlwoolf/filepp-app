@@ -98,7 +98,7 @@ class HomeFragment : Fragment() {
     private fun attemptFileRead(file: File, callback: () -> Unit){
         val cb: () -> Unit = {
             if(file.canWrite() || file.exists()){
-                file.createNewFile()
+                file.mkdirs()
                 callback()
             } else
                 Toast.makeText(requireContext(),R.string.no_write_permission,Toast.LENGTH_SHORT).show()
