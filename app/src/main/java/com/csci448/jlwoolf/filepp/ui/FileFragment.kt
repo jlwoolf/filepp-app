@@ -70,7 +70,6 @@ class FileFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         Log.d(LOG_TAG, "onCreateOptionsMenu() called")
-        inflater.inflate(R.menu.fragment_file, menu)
     }
 
     override fun onCreateView(
@@ -131,22 +130,5 @@ class FileFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         Log.d(LOG_TAG, "onDetach() called")
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
-            R.id.delete_menu_item -> {
-                Toast.makeText(context, "Deletes file", Toast.LENGTH_SHORT).show()
-                true
-            } R.id.menu_more_item-> {
-                Toast.makeText(context, "File settings", Toast.LENGTH_SHORT).show()
-                true
-            } R.id.settings_menu_item-> {
-                Toast.makeText(context, "More options", Toast.LENGTH_SHORT).show()
-                true
-            } else -> {
-                return super.onOptionsItemSelected(item)
-            }
-        }
     }
 }
