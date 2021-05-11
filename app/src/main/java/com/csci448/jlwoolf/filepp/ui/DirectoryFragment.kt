@@ -11,6 +11,7 @@ import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.Toast
@@ -209,6 +210,15 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         super.onCreate(savedInstanceState)
         Log.d(LOG_TAG, "onCreate() called")
 
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.defaultBackground, typedValue, true)
+        backgroundColor = typedValue.data
+        Log.d(LOG_TAG, "background color $backgroundColor")
+        theme.resolveAttribute(R.attr.defaultSecondary, typedValue, true)
+        secondaryColor = typedValue.data
+        Log.d(LOG_TAG, "secondary color $secondaryColor")
+
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -219,8 +229,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         setHasOptionsMenu(true)
         repository = Repository.getInstance(requireContext())
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -257,11 +267,11 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
 
-        Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", 0)}")
+        Log.d(LOG_TAG, "${sharedPreferences.getInt("background_color", backgroundColor)}")
 
         load()
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
         repository.getData(storage.path).observe(
             viewLifecycleOwner,
             Observer { data ->

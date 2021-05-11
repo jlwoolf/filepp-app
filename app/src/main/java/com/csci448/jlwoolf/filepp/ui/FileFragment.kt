@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -50,11 +51,20 @@ class FileFragment : Fragment() {
         super.onCreate(savedInstanceState)
         Log.d(LOG_TAG, "onCreate() called")
 
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(R.attr.defaultBackground, typedValue, true)
+        backgroundColor = typedValue.data
+        Log.d(LOG_TAG, "background color $backgroundColor")
+        theme.resolveAttribute(R.attr.defaultSecondary, typedValue, true)
+        secondaryColor = typedValue.data
+        Log.d(LOG_TAG, "secondary color $secondaryColor")
+
         file = fileArgs.file
         setHasOptionsMenu(true)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -91,8 +101,8 @@ class FileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
-        backgroundColor = sharedPreferences.getInt("background_color", 0)
-        secondaryColor = sharedPreferences.getInt("secondary_color", 0)
+        backgroundColor = sharedPreferences.getInt("background_color", backgroundColor)
+        secondaryColor = sharedPreferences.getInt("secondary_color", secondaryColor)
         updateColors()
     }
 
