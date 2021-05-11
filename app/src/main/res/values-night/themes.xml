@@ -18,6 +18,6 @@
         <item name="title_bar_color">@color/dark_gray</item>
 
         <item name="defaultBackground">@color/gray9_dark</item>
-        <item name="defaultSecondary">@color/purple_500</item>
+        <item name="defaultSecondary">@color/gray9_dark</item>
     </style>
 </resources>
