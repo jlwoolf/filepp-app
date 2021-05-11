@@ -103,7 +103,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
                     findNavController().navigate(action)
                 }
-            },{ if(storage.path != "/storage/self/primary") deleteMenuItem.isVisible = it },{
+            },{ if(storage.canWrite()) deleteMenuItem.isVisible = it },{
                 it.forEach { item ->
                     files.remove(item)
                     item.file.delete()
@@ -247,7 +247,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         if(sharedPreferences.getString("pinned_path", null) == storage.path) {
             menu.findItem(R.id.menu_pin_notification).isChecked = true
         }
-        if(storage.path == "/storage/self/primary")
+        if(!storage.canWrite())
             menu.findItem(R.id.new_folder_menu_item).isVisible = false
         deleteMenuItem = menu.findItem(R.id.delete_menu_item)
     }

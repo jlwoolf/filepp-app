@@ -18,4 +18,5 @@
     <string name="channel_name">Fpp Channel</string>
     <string name="channel_description">This is the fpp channel</string>
     <string name="delete">Delete</string>
+    <string name="no_write_permission">You don\'t have permission to write to this file!</string>
 </resources>

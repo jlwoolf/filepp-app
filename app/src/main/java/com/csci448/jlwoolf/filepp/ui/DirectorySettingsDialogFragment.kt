@@ -93,7 +93,7 @@ class DirectorySettingsDialogFragment(
                 directorySecondaryColorEditor.backgroundTintList = ColorStateList.valueOf(secondary)
                 directoryBackgroundColorEditor.backgroundTintList = ColorStateList.valueOf(background)
             }
-            if(file.path == "/storage/self/primary")
+            if(file.path == "/storage/self/primary" || !file.canWrite())
                 directoryNameEditor.isEnabled = false
         }
         return activity?.let { activity ->
@@ -106,7 +106,4 @@ class DirectorySettingsDialogFragment(
                 .create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
-
-
-
 }

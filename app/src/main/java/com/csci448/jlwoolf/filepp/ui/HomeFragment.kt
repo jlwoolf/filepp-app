@@ -95,14 +95,21 @@ class HomeFragment : Fragment() {
         requireContext(), REQUIRED_READ_FILE_PERMISSION
     ) == PackageManager.PERMISSION_GRANTED
 
-    private fun attemptFileRead(callback: () -> Unit){
+    private fun attemptFileRead(file: File, callback: () -> Unit){
+        val cb: () -> Unit = {
+            if(file.canWrite() || file.exists()){
+                file.createNewFile()
+                callback()
+            } else
+                Toast.makeText(requireContext(),R.string.no_write_permission,Toast.LENGTH_SHORT).show()
+        }
         if(hasReadFilePermission())
-            callback()
+            cb()
         else{
             if(ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),REQUIRED_READ_FILE_PERMISSION))
                 Toast.makeText(requireContext(),R.string.reason_for_permission,Toast.LENGTH_LONG).show()
             else{
-                readFilePermissionGrantedCallback = callback
+                readFilePermissionGrantedCallback = cb
                 readFilePermissionLauncher.launch(REQUIRED_READ_FILE_PERMISSION)
             }
         }
@@ -113,32 +120,38 @@ class HomeFragment : Fragment() {
 
         binding.homeInternalStorage.setOnClickListener {
             val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment()
-            attemptFileRead { findNavController().navigate(action) }
+            attemptFileRead(File("/storage/self/primary")) { findNavController().navigate(action) }
         }
 
         binding.homeTopLeftButtton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Pictures"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Pictures")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
         binding.homeTopMiddleButton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Movies"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Movies")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
         binding.homeTopRightButton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Music"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Music")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
         binding.homeBottomLeftButton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Documents")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
         binding.homeBottomMiddleButton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary/Download"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Download")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
         binding.homeBottomRightButton.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(File("/storage/self/primary"))
-            attemptFileRead { findNavController().navigate(action) }
+            val file = File("/storage/self/primary/Miscellaneous")
+            val action = HomeFragmentDirections.actionHomeFragmentToDirectoryFragment(file)
+            attemptFileRead(file) { findNavController().navigate(action) }
         }
     }
 
