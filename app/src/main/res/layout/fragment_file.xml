@@ -13,9 +13,7 @@
         android:layout_height="wrap_content"
         android:textSize="32sp"
         android:text="@string/file"
-        android:gravity="center"
-        android:background="@color/black"
-        android:textColor="@color/white"/>
+        android:gravity="center"/>
     <TextView
         android:id="@+id/file_path_text_view"
         android:layout_width="match_parent"
