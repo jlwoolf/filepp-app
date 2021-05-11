@@ -139,7 +139,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         }
 
         val fileItemList = mutableListOf<FileItem>()
-        storage.listFiles()!!.toList().forEach { fileItemList.add(FileItem(it)) }
+        (storage.listFiles() ?: emptyArray())!!.forEach { fileItemList.add(FileItem(it)) }
         updateUI(fileItemList)
     }
 
