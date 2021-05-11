@@ -91,7 +91,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         (activity as AppCompatActivity?)!!.supportActionBar?.setBackgroundDrawable(ColorDrawable(secondaryColor))
     }
 
-    private fun updateUI(files: List<FileItem>) {
+    private fun updateUI(files: MutableList<FileItem>) {
         // set up adapter to show files and manage file clicks
         //repository.getData(storage.path)
         DirectoryAdapter(files.sortedBy { it.file.name },
@@ -103,12 +103,12 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
                     findNavController().navigate(action)
                 }
-            },{ deleteMenuItem.isVisible = it },{
-                it.forEach(File::delete)
-                findNavController().apply {
-                    popBackStack()
-                    navigate(DirectoryFragmentDirections.actionDirectoryFragmentSelf(storage))
+            },{ if(storage.path != "/storage/self/primary") deleteMenuItem.isVisible = it },{
+                it.forEach { item ->
+                    files.remove(item)
+                    item.file.delete()
                 }
+                updateUI(files)
             }).apply {
             binding.directoryRecycleView.adapter = this
             adapter = this
@@ -128,7 +128,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
             storage = File("/storage/self/primary")
             binding.directoryTextView.text = getString(R.string.internal_storage)
         } else {
-            storage = directoryArgs.file!!
+            if(!this::storage.isInitialized)
+                storage = directoryArgs.file!!
             if(storage.path == "/storage/self/primary") {
                 binding.directoryTextView.text = getString(R.string.internal_storage)
             } else {
@@ -199,11 +200,10 @@ class DirectoryFragment : Fragment(), SensorEventListener {
 
         if(name != storage.name) {
             val file = File(storage.parent,name)
-            storage.renameTo(file)
-            findNavController().apply {
-                popBackStack()
-                navigate(DirectoryFragmentDirections.actionDirectoryFragmentSelf(file))
-            }
+            storage.copyRecursively(file)
+            storage.deleteRecursively()
+            storage = file
+            load()
         }
     }
 
@@ -247,6 +247,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         if(sharedPreferences.getString("pinned_path", null) == storage.path) {
             menu.findItem(R.id.menu_pin_notification).isChecked = true
         }
+        if(storage.path == "/storage/self/primary")
+            menu.findItem(R.id.new_folder_menu_item).isVisible = false
         deleteMenuItem = menu.findItem(R.id.delete_menu_item)
     }
 
@@ -330,7 +332,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
             }
             R.id.settings_menu_item -> {
                 DirectorySettingsDialogFragment(
-                    storage.name,
+                    storage,
                     backgroundColor,
                     secondaryColor,
                     this::applySettings

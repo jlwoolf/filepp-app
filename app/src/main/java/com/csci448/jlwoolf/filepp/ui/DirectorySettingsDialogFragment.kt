@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
@@ -28,12 +29,14 @@ import java.util.*
 
 
 class DirectorySettingsDialogFragment(
-    private var name: String,
+    private val file: File,
     private var background: Int,
     private var secondary: Int,
     private val callback: (name: String, background: Int, secondary: Int, reset: Boolean) -> Unit
 ) : DialogFragment(){
+
     private var reset: Boolean = false
+    private var name: String = file.name
     private lateinit var sharedPreferences: SharedPreferences
     companion object{
         private const val COLOR_PICKER_TAG = "DirectorySettingsDialogFragmentColorPicker"
@@ -90,6 +93,8 @@ class DirectorySettingsDialogFragment(
                 directorySecondaryColorEditor.backgroundTintList = ColorStateList.valueOf(secondary)
                 directoryBackgroundColorEditor.backgroundTintList = ColorStateList.valueOf(background)
             }
+            if(file.path == "/storage/self/primary")
+                directoryNameEditor.isEnabled = false
         }
         return activity?.let { activity ->
             // create a dialog to handle directory settings

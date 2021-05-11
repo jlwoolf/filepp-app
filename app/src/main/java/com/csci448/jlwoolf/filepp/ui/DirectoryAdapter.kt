@@ -12,7 +12,7 @@ import java.io.File
 class DirectoryAdapter(private val files: List<FileItem>,
                        private val clickListener: (FileItem) -> Unit,
                        private val toggleDeleteItem: (Boolean) -> Unit,
-                       private val deleter: (Collection<File>) -> Unit) : RecyclerView.Adapter<DirectoryHolder>(){
+                       private val deleter: (Collection<FileItem>) -> Unit) : RecyclerView.Adapter<DirectoryHolder>(){
 
     companion object {
         private const val LOG_TAG = "448.DirectoryAdapter"
@@ -29,7 +29,7 @@ class DirectoryAdapter(private val files: List<FileItem>,
     }
 
     fun handleDeleteClick(){
-        deleter(selected.map{ item -> item.file })
+        deleter(selected)
         disableMultiselect()
     }
 
