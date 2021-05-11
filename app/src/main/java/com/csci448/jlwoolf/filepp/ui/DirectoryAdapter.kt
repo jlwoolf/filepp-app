@@ -7,9 +7,12 @@ import android.widget.CompoundButton
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.csci448.jlwoolf.filepp.databinding.FragmentItemBinding
+import java.io.File
 
 class DirectoryAdapter(private val files: List<FileItem>,
-                       private val clickListener: (FileItem) -> Unit) : RecyclerView.Adapter<DirectoryHolder>() {
+                       private val clickListener: (FileItem) -> Unit,
+                       private val toggleDeleteItem: (Boolean) -> Unit,
+                       private val deleter: (Collection<File>) -> Unit) : RecyclerView.Adapter<DirectoryHolder>(){
 
     companion object {
         private const val LOG_TAG = "448.DirectoryAdapter"
@@ -25,6 +28,18 @@ class DirectoryAdapter(private val files: List<FileItem>,
         return DirectoryHolder(binding)
     }
 
+    fun handleDeleteClick(){
+        deleter(selected.map{ item -> item.file })
+        disableMultiselect()
+    }
+
+    private fun disableMultiselect(){
+        holders.forEach { it.value.binding.itemFragmentCheckbox.isVisible = false }
+        toggleDeleteItem(false)
+        multiselect = false
+        selected.clear()
+    }
+
     private fun toggle(item: FileItem){
         item.selected = !item.selected
 
@@ -34,9 +49,8 @@ class DirectoryAdapter(private val files: List<FileItem>,
             selected.remove(item)
         }
 
-        if(selected.isEmpty()) {
-            multiselect = false
-        }
+        if(selected.isEmpty())
+            disableMultiselect()
 
         holders.forEach { it.value.binding.itemFragmentCheckbox.isVisible = multiselect }
     }
@@ -54,9 +68,9 @@ class DirectoryAdapter(private val files: List<FileItem>,
             setOnLongClickListener {
                 if (!multiselect) {
                     multiselect = true
+                    toggleDeleteItem(true)
                     holder.binding.itemFragmentCheckbox.apply { isChecked = !isChecked }
                 }
-
                 true
             }
 

@@ -59,6 +59,8 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
 
+    private lateinit var deleteMenuItem: MenuItem
+
     private var lastUpdate = System.currentTimeMillis()
 
     private var lastX = 0.0f
@@ -92,17 +94,22 @@ class DirectoryFragment : Fragment(), SensorEventListener {
     private fun updateUI(files: List<FileItem>) {
         // set up adapter to show files and manage file clicks
         //repository.getData(storage.path)
-        DirectoryAdapter(files.sortedBy { it.file.name }) { fileItem: FileItem ->
-            if(!fileItem.file.isDirectory) {
-                val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(
-                    fileItem.file
-                )
-                findNavController().navigate(action)
-            } else {
-                val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
-                findNavController().navigate(action)
-            }
-        }.apply {
+        DirectoryAdapter(files.sortedBy { it.file.name },
+            { fileItem: FileItem ->
+                if(!fileItem.file.isDirectory) {
+                    val action = DirectoryFragmentDirections.actionDirectoryFragmentToFileFragment(fileItem.file)
+                    findNavController().navigate(action)
+                } else {
+                    val action = DirectoryFragmentDirections.actionDirectoryFragmentSelf(fileItem.file)
+                    findNavController().navigate(action)
+                }
+            },{ deleteMenuItem.isVisible = it },{
+                it.forEach(File::delete)
+                findNavController().apply {
+                    popBackStack()
+                    navigate(DirectoryFragmentDirections.actionDirectoryFragmentSelf(storage))
+                }
+            }).apply {
             binding.directoryRecycleView.adapter = this
             adapter = this
         }
@@ -237,10 +244,10 @@ class DirectoryFragment : Fragment(), SensorEventListener {
         super.onCreateOptionsMenu(menu, inflater)
         Log.d(LOG_TAG, "onCreateOptionsMenu() called")
         inflater.inflate(R.menu.fragment_directory, menu)
-
         if(sharedPreferences.getString("pinned_path", null) == storage.path) {
-            menu.getItem(2).isChecked = true
+            menu.findItem(R.id.menu_pin_notification).isChecked = true
         }
+        deleteMenuItem = menu.findItem(R.id.delete_menu_item)
     }
 
     override fun onCreateView(
@@ -343,6 +350,7 @@ class DirectoryFragment : Fragment(), SensorEventListener {
                     createNotification()
                 }
             }
+            R.id.delete_menu_item -> adapter.handleDeleteClick()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
